@@ -795,6 +795,8 @@ public partial class MainWindowViewModel : ViewModelBase
                         var eif = new Eif();
                         eif.Rid.Add(startIdx);
                         eif.Rid.Add(endIdx);
+                        eif.TotalItemsCount = itemRecords.Count;
+                        eif.Version = _itemsFileData?.Version ?? 1;
                         eif.Items.AddRange(records);
                         return eif;
                     },
@@ -811,6 +813,8 @@ public partial class MainWindowViewModel : ViewModelBase
                         var enf = new Enf();
                         enf.Rid.Add(startIdx);
                         enf.Rid.Add(endIdx);
+                        enf.TotalNpcsCount = npcRecords.Count;
+                        enf.Version = _npcsFileData?.Version ?? 1;
                         enf.Npcs.AddRange(records);
                         return enf;
                     },
@@ -827,6 +831,8 @@ public partial class MainWindowViewModel : ViewModelBase
                         var esf = new Esf();
                         esf.Rid.Add(startIdx);
                         esf.Rid.Add(endIdx);
+                        esf.TotalSkillsCount = spellRecords.Count;
+                        esf.Version = _spellsFileData?.Version ?? 1;
                         esf.Skills.AddRange(records);
                         return esf;
                     },
@@ -843,6 +849,8 @@ public partial class MainWindowViewModel : ViewModelBase
                         var ecf = new Ecf();
                         ecf.Rid.Add(startIdx);
                         ecf.Rid.Add(endIdx);
+                        ecf.TotalClassesCount = classRecords.Count;
+                        ecf.Version = _classesFileData?.Version ?? 1;
                         ecf.Classes.AddRange(records);
                         return ecf;
                     },
