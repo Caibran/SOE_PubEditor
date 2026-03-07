@@ -165,7 +165,7 @@ public class ItemRecordWrapper : INotifyPropertyChanged
     public int Weight
     {
         get => Record.Weight;
-        set => Record.Weight = (byte)value;
+        set => Record.Weight = value;
     }
     public ItemSize Size
     {
