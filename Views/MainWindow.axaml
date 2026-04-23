@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SOE_PubEditor.ViewModels"
+        xmlns:views="using:SOE_PubEditor.Views"
         xmlns:pub="using:Moffat.EndlessOnline.SDK.Protocol.Pub"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -814,6 +815,14 @@
                     </Grid>
                 </DockPanel>
             </TabItem>
+
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- GFX Editor Tab                              -->
+            <!-- ═══════════════════════════════════════════ -->
+            <TabItem Header="GFX Editor">
+                <views:GfxEditorTab DataContext="{Binding GfxEditor}"/>
+            </TabItem>
+
         </TabControl>
     </DockPanel>
 </Window>

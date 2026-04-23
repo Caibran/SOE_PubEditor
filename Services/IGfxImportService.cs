@@ -80,5 +80,14 @@ public interface IGfxImportService
     /// <param name="outputGfxDirectory">The output directory.</param>
     /// <returns>The path to the EGF file that should be modified.</returns>
     string PrepareEgfForModification(GfxType gfxType, string outputGfxDirectory);
+
+    /// <summary>
+    /// Replaces a single bitmap resource inside an EGF file by its raw PE resource ID.
+    /// </summary>
+    /// <param name="egfPath">Absolute path to the .egf file.</param>
+    /// <param name="resourceId">Raw PE resource ID to replace.</param>
+    /// <param name="bmpPath">Path to the source BMP file.</param>
+    /// <returns>True if successful.</returns>
+    bool ReplaceBitmapResource(string egfPath, int resourceId, string bmpPath);
 }
 

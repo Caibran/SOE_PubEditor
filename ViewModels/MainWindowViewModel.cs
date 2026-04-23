@@ -276,6 +276,10 @@ public partial class MainWindowViewModel : ViewModelBase
         _gfxService = new GfxService();
         _settings = AppSettings.Load();
         
+        // Initialize GFX Editor sub-ViewModel
+        var importService = new GfxImportService(_gfxService);
+        GfxEditor = new GfxEditorViewModel(_gfxService, importService);
+
         // Initialize commands
         SelectPubDirectoryCommand = new AsyncRelayCommand(ExecuteSelectPubDirectoryAsync);
         SelectGfxDirectoryCommand = new AsyncRelayCommand(ExecuteSelectGfxDirectoryAsync);
@@ -289,8 +293,12 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!string.IsNullOrEmpty(GfxDirectory))
         {
             _gfxService.SetGfxDirectory(GfxDirectory);
+            GfxEditor.RefreshFileList();
         }
     }
+
+    /// <summary>Sub-ViewModel for the GFX Editor tab.</summary>
+    public GfxEditorViewModel GfxEditor { get; }
     
     partial void OnSaveDirectoryChanged(string? value)
     {
@@ -611,6 +619,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _gfxService.SetGfxDirectory(path);
         _settings.GfxDirectory = path;
         _settings.Save();
+        GfxEditor.RefreshFileList();
         
         StatusText = _gfxService.IsGfxDirectoryValid() 
             ? "GFX directory loaded" 

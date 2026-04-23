@@ -1,0 +1,299 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SOE_PubEditor.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="SOE_PubEditor.Views.GfxEditorTab"
+             x:DataType="vm:GfxEditorViewModel">
+
+    <DockPanel>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- Toolbar                                        -->
+        <!-- ══════════════════════════════════════════════ -->
+        <Border DockPanel.Dock="Top" Classes="Toolbar">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="GFX Resource Editor" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextGoldBrush}" FontSize="13" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ResourceLoadStatus}"
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Progress bar (visible while loading) -->
+                <ProgressBar Grid.Column="1"
+                             Minimum="0"
+                             Maximum="{Binding ProgressMax}"
+                             Value="{Binding ProgressValue}"
+                             Width="160" Height="8"
+                             IsVisible="{Binding IsLoadingResources}"
+                             VerticalAlignment="Center" Margin="0,0,4,0"/>
+            </Grid>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- Status bar                                     -->
+        <!-- ══════════════════════════════════════════════ -->
+        <Border DockPanel.Dock="Bottom"
+                Background="{StaticResource BackgroundMediumBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="8,4">
+            <TextBlock Text="{Binding StatusText}"
+                       FontSize="11"
+                       Foreground="{StaticResource TextSecondaryBrush}"/>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════ -->
+        <!-- Main 3-column layout                          -->
+        <!-- ══════════════════════════════════════════════ -->
+        <Grid ColumnDefinitions="220,*,280">
+
+            <!-- ─────────────────────────────────── -->
+            <!-- Column 0: EGF file list             -->
+            <!-- ─────────────────────────────────── -->
+            <DockPanel Grid.Column="0" Margin="6,6,3,6">
+                <TextBlock DockPanel.Dock="Top" Classes="FieldLabel"
+                           Text="EGF FILES" Margin="0,0,0,6"/>
+                <ListBox ItemsSource="{Binding EgfFiles}"
+                         SelectedItem="{Binding SelectedEgfFile}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EgfFileEntry">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Label}"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <!-- green dot when file exists -->
+                                <Ellipse Grid.Column="1"
+                                         Name="ExistsDot"
+                                         Width="7" Height="7"
+                                         Margin="4,0,0,0"
+                                         Fill="#3a3030"
+                                         VerticalAlignment="Center">
+                                    <Ellipse.Styles>
+                                        <Style Selector="Ellipse#ExistsDot">
+                                            <Setter Property="Fill" Value="#3a3030"/>
+                                        </Style>
+                                    </Ellipse.Styles>
+                                </Ellipse>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <!-- ─────────────────────────────────── -->
+            <!-- Column 1: Resource thumbnail grid   -->
+            <!-- ─────────────────────────────────── -->
+            <DockPanel Grid.Column="1" Margin="3,6,3,6">
+                <TextBlock DockPanel.Dock="Top" Classes="FieldLabel"
+                           Text="RESOURCES  —  click a slot to preview &amp; replace" Margin="0,0,0,6"/>
+
+                <!-- Loading spinner overlay -->
+                <Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ResourceSlots}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EgfResourceSlot">
+                                    <Border Width="72" Height="72"
+                                            Margin="3"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            BorderThickness="1"
+                                            Background="#12100c"
+                                            BorderBrush="#252530">
+                                        <Border.Styles>
+                                            <Style Selector="Border.selected">
+                                                <Setter Property="BorderBrush" Value="#c6a856"/>
+                                                <Setter Property="Background" Value="#2a2418"/>
+                                            </Style>
+                                        </Border.Styles>
+                                        <!-- Slot content: thumbnail + ID label -->
+                                        <Grid>
+                                            <Image Source="{Binding Thumbnail}"
+                                                   Stretch="Uniform"
+                                                   Margin="4"/>
+                                            <!-- No thumbnail placeholder -->
+                                            <TextBlock Text="?"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="18"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       IsVisible="{Binding Thumbnail,
+                                                           Converter={x:Static ObjectConverters.IsNull}}"/>
+                                            <!-- Resource ID badge -->
+                                            <Border VerticalAlignment="Bottom"
+                                                    HorizontalAlignment="Stretch"
+                                                    Background="#88000000"
+                                                    Padding="2,1">
+                                                <TextBlock Text="{Binding ResourceId}"
+                                                           FontSize="9"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Loading overlay -->
+                    <Border IsVisible="{Binding IsLoadingResources}"
+                            Background="#CC0a0a0e"
+                            CornerRadius="3">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                            <ProgressBar IsIndeterminate="True" Width="180" Height="6"/>
+                            <TextBlock Text="{Binding ResourceLoadStatus}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       FontSize="12"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </DockPanel>
+
+            <!-- ─────────────────────────────────── -->
+            <!-- Column 2: Detail + actions panel    -->
+            <!-- ─────────────────────────────────── -->
+            <Border Grid.Column="2" Classes="EditorPanel" Margin="3,6,6,6">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="0">
+                        <Border Classes="GoldAccent"/>
+                        <TextBlock Classes="PanelTitle" Text="Replace &amp; Import"/>
+
+                        <!-- ···· Selected resource preview ···· -->
+                        <TextBlock Classes="FieldLabel" Text="SELECTED RESOURCE" Margin="0,12,0,6"/>
+
+                        <Border Background="{StaticResource BackgroundCardBrush}"
+                                BorderBrush="{StaticResource BorderSubtleBrush}"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Height="140"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,4">
+                            <Grid>
+                                <!-- Preview image -->
+                                <Image Source="{Binding SelectedSlot.Thumbnail}"
+                                       Stretch="Uniform"
+                                       Margin="8"
+                                       IsVisible="{Binding SelectedSlot,
+                                           Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                <!-- Placeholder when nothing selected -->
+                                <TextBlock Text="Select a resource slot"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           FontSize="11"
+                                           IsVisible="{Binding SelectedSlot,
+                                               Converter={x:Static ObjectConverters.IsNull}}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- ID readout -->
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,12"
+                                    IsVisible="{Binding SelectedSlot, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <TextBlock Text="Resource ID:" Classes="FieldLabel" Margin="0"/>
+                            <TextBlock Text="{Binding SelectedSlot.ResourceId}"
+                                       Foreground="{StaticResource TextGoldBrush}"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Replace single button -->
+                        <Button Content="Replace with BMP…"
+                                Command="{Binding ReplaceSelectedCommand}"
+                                Classes="Primary"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,4"
+                                IsEnabled="{Binding !IsImporting}"
+                                ToolTip.Tip="Pick a BMP file and replace this single resource slot"/>
+
+                        <!-- Platform warning -->
+                        <TextBlock Text="⚠ Replace requires Windows"
+                                   FontSize="10"
+                                   Foreground="{StaticResource AccentWarning}"
+                                   IsVisible="{Binding !ImportAvailable}"
+                                   Margin="0,0,0,8"
+                                   HorizontalAlignment="Center"/>
+
+                        <!-- ───── Divider ───── -->
+                        <Border BorderBrush="{StaticResource BorderSubtleBrush}"
+                                BorderThickness="0,1,0,0" Margin="0,8,0,12"/>
+
+                        <!-- ···· Mass Import ···· -->
+                        <TextBlock Classes="PanelTitle" Text="Mass Import" FontSize="13"/>
+                        <TextBlock Text="Map a sorted folder of BMPs to a sequential range of resource IDs."
+                                   FontSize="10"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,2,0,10"/>
+
+                        <TextBlock Classes="FieldLabel" Text="BMP FOLDER" Margin="0,0,0,4"/>
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding MassImportFolder}"
+                                     Watermark="Folder containing .bmp files…"
+                                     IsReadOnly="True"
+                                     FontSize="11"/>
+                            <Button Grid.Column="1"
+                                    Content="…"
+                                    Command="{Binding PickMassImportFolderCommand}"
+                                    Padding="8,4"
+                                    Margin="4,0,0,0"
+                                    ToolTip.Tip="Browse for folder"/>
+                        </Grid>
+
+                        <TextBlock Classes="FieldLabel" Text="STARTING RESOURCE ID" Margin="0,0,0,4"/>
+                        <NumericUpDown Value="{Binding MassImportStartId}"
+                                       Minimum="1" Maximum="99999"
+                                       Increment="1"
+                                       FormatString="0"
+                                       Margin="0,0,0,8"/>
+
+                        <TextBlock Classes="FieldLabel" Text="ENDING RESOURCE ID" Margin="0,0,0,4"/>
+                        <NumericUpDown Value="{Binding MassImportEndId}"
+                                       Minimum="1" Maximum="99999"
+                                       Increment="1"
+                                       FormatString="0"
+                                       Margin="0,0,0,12"/>
+
+                        <!-- Mass import progress -->
+                        <ProgressBar Minimum="0"
+                                     Maximum="{Binding ProgressMax}"
+                                     Value="{Binding ProgressValue}"
+                                     Height="6"
+                                     IsVisible="{Binding IsImporting}"
+                                     Margin="0,0,0,8"/>
+
+                        <Button Content="Start Mass Import"
+                                Command="{Binding MassImportCommand}"
+                                Classes="Primary"
+                                HorizontalAlignment="Stretch"
+                                IsEnabled="{Binding !IsImporting}"
+                                ToolTip.Tip="Replace a sequential range of resources from the selected folder of BMPs"/>
+
+                        <TextBlock Text="⚠ Mass import requires Windows"
+                                   FontSize="10"
+                                   Foreground="{StaticResource AccentWarning}"
+                                   IsVisible="{Binding !ImportAvailable}"
+                                   Margin="0,4,0,0"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+        </Grid>
+    </DockPanel>
+
+</UserControl>

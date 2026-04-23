@@ -415,6 +415,9 @@ public class GfxImportService : IGfxImportService
         }
     }
     
+    public bool ReplaceBitmapResource(string egfPath, int resourceId, string bmpPath)
+        => ImportBmpToEgf(egfPath, resourceId, bmpPath);
+
     private static (GfxType gfxType, string name) GetEquipmentGfxType(ItemType type, bool isFemale)
     {
         return type switch
@@ -484,6 +487,9 @@ public class GfxImportService : IGfxImportService
         string? outputGfxDirectory = null,
         int? targetGraphicId = null)
         => Task.FromResult(new GfxImportResult(false, 0, null, null, "GFX import requires Windows"));
+
+    public bool ReplaceBitmapResource(string egfPath, int resourceId, string bmpPath)
+        => false;
 }
 
 #endif
