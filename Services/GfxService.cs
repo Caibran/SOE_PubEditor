@@ -367,6 +367,51 @@ public class GfxService : IGfxService
         var fileNumber = (int)type;
         return Path.Combine(_gfxDirectory!, $"gfx{fileNumber:D3}.egf");
     }
+
+    public List<int> GetRawBitmapResourceIds(string egfPath)
+    {
+        var ids = new List<int>();
+        if (!File.Exists(egfPath)) return ids;
+        try
+        {
+            using var fs = new FileStream(egfPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var reader = new BinaryReader(fs);
+            if (reader.ReadUInt16() != 0x5A4D) return ids;
+            fs.Seek(0x3C, SeekOrigin.Begin);
+            var peOff = reader.ReadUInt32();
+            fs.Seek(peOff, SeekOrigin.Begin);
+            if (reader.ReadUInt32() != 0x00004550) return ids;
+            reader.ReadUInt16(); var nSections = reader.ReadUInt16();
+            reader.ReadUInt32(); reader.ReadUInt32(); reader.ReadUInt32();
+            var optHdrSize = reader.ReadUInt16(); reader.ReadUInt16();
+            var optStart = fs.Position;
+            var magic = reader.ReadUInt16();
+            var is64 = magic == 0x20B;
+            fs.Seek(optStart + (is64 ? 112 : 96), SeekOrigin.Begin);
+            reader.ReadUInt64(); reader.ReadUInt64();
+            var rsrcRva = reader.ReadUInt32(); reader.ReadUInt32();
+            if (rsrcRva == 0) return ids;
+            fs.Seek(optStart + optHdrSize, SeekOrigin.Begin);
+            for (int s = 0; s < nSections; s++)
+            {
+                reader.ReadBytes(8); var vSize = reader.ReadUInt32(); var va = reader.ReadUInt32();
+                reader.ReadUInt32(); var rawOff = reader.ReadUInt32(); reader.ReadBytes(16);
+                if (rsrcRva >= va && rsrcRva < va + vSize)
+                {
+                    ids = EnumerateResourceIds(reader, fs, rawOff + (rsrcRva - va), rsrcRva);
+                    break;
+                }
+            }
+        }
+        catch { /* return whatever we have */ }
+        return ids;
+    }
+
+    public Bitmap? LoadBitmapFromEgfPath(string egfPath, int resourceId)
+    {
+        if (!File.Exists(egfPath)) return null;
+        return LoadBitmapFromPE(egfPath, resourceId);
+    }
     
     private Bitmap? LoadBitmapFromFile(GfxType type, int resourceId)
     {

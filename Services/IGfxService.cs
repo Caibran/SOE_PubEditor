@@ -105,4 +105,16 @@ public interface IGfxService
     /// </summary>
     /// <returns>The next available item graphic ID.</returns>
     int GetNextAvailableItemGraphicId();
+
+    /// <summary>
+    /// Returns all raw RT_BITMAP resource IDs present in an EGF file by path.
+    /// Does not apply any formula transformation.
+    /// </summary>
+    List<int> GetRawBitmapResourceIds(string egfPath);
+
+    /// <summary>
+    /// Loads a bitmap from any EGF file by full path and raw PE resource ID.
+    /// Does not apply any formula transformation or cache the result.
+    /// </summary>
+    Bitmap? LoadBitmapFromEgfPath(string egfPath, int resourceId);
 }

@@ -202,12 +202,12 @@ public partial class GfxEditorViewModel : ViewModelBase
 
         try
         {
-            // Enumerate raw PE resource IDs directly from the file
-            var rawIds = await Task.Run(() => GetRawResourceIds(egfPath), token);
+            // Enumerate raw PE resource IDs using the shared GfxService
+            var rawIds = await Task.Run(() => _gfxService.GetRawBitmapResourceIds(egfPath), token);
 
             if (token.IsCancellationRequested) return;
 
-            ResourceLoadStatus = $"Loading {rawIds.Count} resources…";
+            ResourceLoadStatus = $"Loading {rawIds.Count} resources\u2026";
             ProgressMax = rawIds.Count;
             ProgressValue = 0;
 
@@ -218,7 +218,7 @@ public partial class GfxEditorViewModel : ViewModelBase
                 foreach (var rawId in rawIds)
                 {
                     if (token.IsCancellationRequested) break;
-                    var bmp = LoadRawBitmapFromEgf(egfPath, rawId);
+                    var bmp = _gfxService.LoadBitmapFromEgfPath(egfPath, rawId);
                     slots.Add(new EgfResourceSlot { ResourceId = rawId, Thumbnail = bmp });
                 }
             }, token);
@@ -279,7 +279,7 @@ public partial class GfxEditorViewModel : ViewModelBase
             if (ok)
             {
                 // Reload the thumbnail for just this slot
-                var newBmp = await Task.Run(() => LoadRawBitmapFromEgf(egfPath, SelectedSlot.ResourceId));
+                var newBmp = await Task.Run(() => _gfxService.LoadBitmapFromEgfPath(egfPath, SelectedSlot.ResourceId));
                 SelectedSlot.Thumbnail?.Dispose();
                 SelectedSlot.Thumbnail = newBmp;
                 _gfxService.ClearCache();
@@ -393,235 +393,8 @@ public partial class GfxEditorViewModel : ViewModelBase
         SelectedEgfFile != null && !string.IsNullOrEmpty(MassImportFolder) &&
         !IsImporting && ImportAvailable;
 
-    // ────────────────────────────── PE resource helpers ──────────────────────────────
+    // ────────────────────────────── Import helper ──────────────────────────────
 
-    /// <summary>
-    /// Returns all raw bitmap resource IDs present in an EGF file (PE format).
-    /// </summary>
-    private static List<int> GetRawResourceIds(string egfPath)
-    {
-        var ids = new List<int>();
-        try
-        {
-            using var fs = new FileStream(egfPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using var r = new BinaryReader(fs);
-
-            if (r.ReadUInt16() != 0x5A4D) return ids; // MZ
-            fs.Seek(0x3C, SeekOrigin.Begin);
-            var peOff = r.ReadUInt32();
-            fs.Seek(peOff, SeekOrigin.Begin);
-            if (r.ReadUInt32() != 0x00004550) return ids; // PE
-
-            r.ReadUInt16(); // Machine
-            var nSections = r.ReadUInt16();
-            r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt32();
-            var optHdrSize = r.ReadUInt16();
-            r.ReadUInt16();
-
-            var optStart = fs.Position;
-            var magic = r.ReadUInt16();
-            var is64 = magic == 0x20B;
-
-            fs.Seek(optStart + (is64 ? 112 : 96), SeekOrigin.Begin);
-            r.ReadUInt64(); // export
-            r.ReadUInt64(); // import
-            var rsrcRva = r.ReadUInt32();
-            r.ReadUInt32(); // rsrcSize
-
-            if (rsrcRva == 0) return ids;
-
-            fs.Seek(optStart + optHdrSize, SeekOrigin.Begin);
-            for (int s = 0; s < nSections; s++)
-            {
-                r.ReadBytes(8); // name
-                var vSize = r.ReadUInt32();
-                var va = r.ReadUInt32();
-                r.ReadUInt32();
-                var rawOff = r.ReadUInt32();
-                r.ReadBytes(16);
-
-                if (rsrcRva >= va && rsrcRva < va + vSize)
-                {
-                    var rsrcFileOff = rawOff + (rsrcRva - va);
-                    ids = ReadBitmapIds(r, fs, rsrcFileOff);
-                    break;
-                }
-            }
-        }
-        catch { /* return whatever we have */ }
-        return ids;
-    }
-
-    private static List<int> ReadBitmapIds(BinaryReader r, FileStream fs, uint rsrcOff)
-    {
-        var ids = new List<int>();
-        fs.Seek(rsrcOff, SeekOrigin.Begin);
-        r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt16(); r.ReadUInt16();
-        var namedCount = r.ReadUInt16();
-        var idCount = r.ReadUInt16();
-
-        for (int i = 0; i < namedCount + idCount; i++)
-        {
-            var typeId = r.ReadUInt32();
-            var offset = r.ReadUInt32();
-            if (typeId == 2) // RT_BITMAP
-            {
-                var bmpDir = rsrcOff + (offset & 0x7FFFFFFF);
-                fs.Seek(bmpDir, SeekOrigin.Begin);
-                r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt16(); r.ReadUInt16();
-                var n = r.ReadUInt16();
-                var ni = r.ReadUInt16();
-                for (int j = 0; j < n + ni; j++)
-                {
-                    var rid = (int)r.ReadUInt32();
-                    r.ReadUInt32();
-                    ids.Add(rid);
-                }
-                break;
-            }
-        }
-        return ids.OrderBy(x => x).ToList();
-    }
-
-    /// <summary>
-    /// Loads a bitmap directly from a raw PE resource ID (no formula applied).
-    /// </summary>
-    private static Bitmap? LoadRawBitmapFromEgf(string egfPath, int rawId)
-    {
-        try
-        {
-            using var fs = new FileStream(egfPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using var r = new BinaryReader(fs);
-
-            if (r.ReadUInt16() != 0x5A4D) return null;
-            fs.Seek(0x3C, SeekOrigin.Begin);
-            var peOff = r.ReadUInt32();
-            fs.Seek(peOff, SeekOrigin.Begin);
-            if (r.ReadUInt32() != 0x00004550) return null;
-
-            r.ReadUInt16();
-            var nSections = r.ReadUInt16();
-            r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt32();
-            var optHdrSize = r.ReadUInt16();
-            r.ReadUInt16();
-
-            var optStart = fs.Position;
-            var magic = r.ReadUInt16();
-            var is64 = magic == 0x20B;
-
-            fs.Seek(optStart + (is64 ? 112 : 96), SeekOrigin.Begin);
-            r.ReadUInt64();
-            r.ReadUInt64();
-            var rsrcRva = r.ReadUInt32();
-            r.ReadUInt32();
-
-            if (rsrcRva == 0) return null;
-
-            fs.Seek(optStart + optHdrSize, SeekOrigin.Begin);
-            uint rsrcFileOff = 0;
-            for (int s = 0; s < nSections; s++)
-            {
-                r.ReadBytes(8);
-                var vSize = r.ReadUInt32();
-                var va = r.ReadUInt32();
-                r.ReadUInt32();
-                var rawOff = r.ReadUInt32();
-                r.ReadBytes(16);
-                if (rsrcRva >= va && rsrcRva < va + vSize)
-                {
-                    rsrcFileOff = rawOff + (rsrcRva - va);
-                    break;
-                }
-            }
-            if (rsrcFileOff == 0) return null;
-
-            return ExtractBitmapById(r, fs, rsrcFileOff, rsrcRva, rawId);
-        }
-        catch { return null; }
-    }
-
-    private static Bitmap? ExtractBitmapById(BinaryReader r, FileStream fs, uint rsrcOff, uint rsrcRva, int targetId)
-    {
-        fs.Seek(rsrcOff, SeekOrigin.Begin);
-        r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt16(); r.ReadUInt16();
-        var nc = r.ReadUInt16(); var ic = r.ReadUInt16();
-        for (int i = 0; i < nc + ic; i++)
-        {
-            var typeId = r.ReadUInt32(); var tOff = r.ReadUInt32();
-            if (typeId == 2)
-            {
-                var bmpDir = rsrcOff + (tOff & 0x7FFFFFFF);
-                fs.Seek(bmpDir, SeekOrigin.Begin);
-                r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt16(); r.ReadUInt16();
-                var n = r.ReadUInt16(); var ni = r.ReadUInt16();
-                for (int j = 0; j < n + ni; j++)
-                {
-                    var rid = (int)r.ReadUInt32(); var rOff = r.ReadUInt32();
-                    if (rid == targetId)
-                    {
-                        // Navigate to the language sub-directory
-                        var langDir = rsrcOff + (rOff & 0x7FFFFFFF);
-                        fs.Seek(langDir, SeekOrigin.Begin);
-                        r.ReadUInt32(); r.ReadUInt32(); r.ReadUInt16(); r.ReadUInt16();
-                        var ln = r.ReadUInt16(); var li = r.ReadUInt16();
-                        if (ln + li == 0) return null;
-                        r.ReadUInt32(); // lang id
-                        var dataOff = r.ReadUInt32() & 0x7FFFFFFF;
-
-                        var dataEntry = rsrcOff + dataOff;
-                        fs.Seek(dataEntry, SeekOrigin.Begin);
-                        var dataRva = r.ReadUInt32();
-                        var dataSize = r.ReadUInt32();
-
-                        // Convert RVA to file offset (need to re-read section table)
-                        // We already know rsrcRva and rsrcOff, use delta
-                        var delta = (long)rsrcOff - (long)rsrcRva;
-                        var fileOffset = (long)dataRva + delta;
-
-                        fs.Seek(fileOffset, SeekOrigin.Begin);
-                        var bitmapData = r.ReadBytes((int)dataSize);
-
-                        // EGF stores raw BITMAPINFO (no file header) — prepend BITMAPFILEHEADER
-                        const int fileHeaderSize = 14;
-                        // Read DIB header size to compute pixel data offset
-                        var dibHeaderSize = BitConverter.ToInt32(bitmapData, 0);
-                        // Count color table entries
-                        var bitCount = BitConverter.ToInt16(bitmapData, 14);
-                        var clrUsed = BitConverter.ToInt32(bitmapData, 32);
-                        int colorTableCount = clrUsed != 0 ? clrUsed : (bitCount <= 8 ? (1 << bitCount) : 0);
-                        var pixelDataOffset = fileHeaderSize + dibHeaderSize + colorTableCount * 4;
-
-                        var fileBytes = new byte[fileHeaderSize + bitmapData.Length];
-                        // BM signature
-                        fileBytes[0] = 0x42; fileBytes[1] = 0x4D;
-                        // File size
-                        var fileSize = BitConverter.GetBytes(fileBytes.Length);
-                        Array.Copy(fileSize, 0, fileBytes, 2, 4);
-                        // Reserved
-                        fileBytes[6] = 0; fileBytes[7] = 0; fileBytes[8] = 0; fileBytes[9] = 0;
-                        // Pixel data offset
-                        var pdo = BitConverter.GetBytes(pixelDataOffset);
-                        Array.Copy(pdo, 0, fileBytes, 10, 4);
-                        // DIB data
-                        Array.Copy(bitmapData, 0, fileBytes, fileHeaderSize, bitmapData.Length);
-
-                        using var ms = new MemoryStream(fileBytes);
-                        return new Bitmap(ms);
-                    }
-                    else
-                    {
-                        // Keep iterating
-                    }
-                }
-                break;
-            }
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Delegates to IGfxImportService to replace a single bitmap resource inside an EGF file.
-    /// </summary>
     private bool ImportBmpIntoEgf(string egfPath, int resourceId, string bmpPath)
     {
         try
@@ -635,3 +408,4 @@ public partial class GfxEditorViewModel : ViewModelBase
         }
     }
 }
+
