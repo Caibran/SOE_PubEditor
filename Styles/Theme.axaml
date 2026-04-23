@@ -1,51 +1,58 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
-    <!-- Clean Modern Dark Theme -->
-    <!-- Inspired by VS Code / JetBrains dark themes -->
+    <!-- Dark Fantasy Theme — Inspired by SOE WebClient -->
     
     <Styles.Resources>
-        <!-- Base Colors -->
-        <Color x:Key="BackgroundDark">#1E1E1E</Color>
-        <Color x:Key="BackgroundMedium">#252526</Color>
-        <Color x:Key="BackgroundLight">#2D2D30</Color>
-        <Color x:Key="BackgroundPanel">#333337</Color>
+        <!-- Base Colors — Dark stone palette -->
+        <Color x:Key="BackgroundDark">#0a0a0e</Color>
+        <Color x:Key="BackgroundMedium">#151520</Color>
+        <Color x:Key="BackgroundLight">#1a1610</Color>
+        <Color x:Key="BackgroundPanel">#1c1a14</Color>
+        <Color x:Key="BackgroundCard">#12100c</Color>
         
         <!-- Border Colors -->
-        <Color x:Key="BorderSubtle">#3C3C3C</Color>
-        <Color x:Key="BorderMedium">#474747</Color>
-        <Color x:Key="BorderFocus">#007ACC</Color>
+        <Color x:Key="BorderSubtle">#252530</Color>
+        <Color x:Key="BorderMedium">#3c3424</Color>
+        <Color x:Key="BorderFocus">#c6a856</Color>
+        <Color x:Key="BorderGold">#504428</Color>
         
-        <!-- Accent Colors -->
-        <Color x:Key="AccentPrimary">#007ACC</Color>
-        <Color x:Key="AccentHover">#1C97EA</Color>
-        <Color x:Key="AccentPressed">#005A9E</Color>
-        <Color x:Key="AccentSuccess">#4EC9B0</Color>
+        <!-- Accent Colors — Gold & Ember -->
+        <Color x:Key="AccentPrimary">#c6a856</Color>
+        <Color x:Key="AccentHover">#e8d48a</Color>
+        <Color x:Key="AccentPressed">#9a7f3a</Color>
+        <Color x:Key="AccentSuccess">#2a9d8f</Color>
         <Color x:Key="AccentWarning">#DCDCAA</Color>
+        <Color x:Key="AccentDanger">#c62828</Color>
         
         <!-- Text Colors -->
-        <Color x:Key="TextPrimary">#CCCCCC</Color>
-        <Color x:Key="TextSecondary">#9D9D9D</Color>
+        <Color x:Key="TextPrimary">#e0e0e0</Color>
+        <Color x:Key="TextSecondary">#9a9a9a</Color>
         <Color x:Key="TextMuted">#6B6B6B</Color>
         <Color x:Key="TextBright">#FFFFFF</Color>
+        <Color x:Key="TextGold">#c6a856</Color>
         
         <!-- Selection Colors -->
-        <Color x:Key="SelectionBackground">#264F78</Color>
-        <Color x:Key="HoverBackground">#2A2D2E</Color>
-        <Color x:Key="RowAlternate">#262628</Color>
+        <Color x:Key="SelectionBackground">#2a2418</Color>
+        <Color x:Key="HoverBackground">#1e1a12</Color>
+        <Color x:Key="RowAlternate">#100e0a</Color>
         
         <!-- Brushes from Colors -->
         <SolidColorBrush x:Key="BackgroundDarkBrush" Color="{StaticResource BackgroundDark}"/>
         <SolidColorBrush x:Key="BackgroundMediumBrush" Color="{StaticResource BackgroundMedium}"/>
         <SolidColorBrush x:Key="BackgroundLightBrush" Color="{StaticResource BackgroundLight}"/>
         <SolidColorBrush x:Key="BackgroundPanelBrush" Color="{StaticResource BackgroundPanel}"/>
+        <SolidColorBrush x:Key="BackgroundCardBrush" Color="{StaticResource BackgroundCard}"/>
         <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtle}"/>
         <SolidColorBrush x:Key="BorderMediumBrush" Color="{StaticResource BorderMedium}"/>
+        <SolidColorBrush x:Key="BorderGoldBrush" Color="{StaticResource BorderGold}"/>
         <SolidColorBrush x:Key="AccentPrimaryBrush" Color="{StaticResource AccentPrimary}"/>
         <SolidColorBrush x:Key="AccentSuccessBrush" Color="{StaticResource AccentSuccess}"/>
+        <SolidColorBrush x:Key="AccentDangerBrush" Color="{StaticResource AccentDanger}"/>
         <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
         <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
         <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMuted}"/>
+        <SolidColorBrush x:Key="TextGoldBrush" Color="{StaticResource TextGold}"/>
         <SolidColorBrush x:Key="SelectionBackgroundBrush" Color="{StaticResource SelectionBackground}"/>
         <SolidColorBrush x:Key="HoverBackgroundBrush" Color="{StaticResource HoverBackground}"/>
         <SolidColorBrush x:Key="RowAlternateBrush" Color="{StaticResource RowAlternate}"/>
@@ -72,57 +79,51 @@
     </Style>
     
     <Style Selector="TabItem">
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="14,6"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
     </Style>
     
     <Style Selector="TabItem:selected">
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextGoldBrush}"/>
     </Style>
     
     <Style Selector="TabItem:pointerover">
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
     </Style>
     
-    <!-- DataGrid Styling -->
-    <Style Selector="DataGrid">
+    <!-- ListBox Styling -->
+    <Style Selector="ListBox">
         <Setter Property="Background" Value="{StaticResource BackgroundMediumBrush}"/>
-        <Setter Property="RowBackground" Value="{StaticResource BackgroundMediumBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderSubtleBrush}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Padding" Value="0"/>
     </Style>
     
-    <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
-        <Setter Property="Fill" Value="{StaticResource SelectionBackgroundBrush}"/>
-    </Style>
-    
-    <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
-        <Setter Property="Fill" Value="{StaticResource HoverBackgroundBrush}"/>
-    </Style>
-    
-    <Style Selector="DataGridColumnHeader">
-        <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-        <Setter Property="Padding" Value="8,6"/>
+    <Style Selector="ListBoxItem">
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="12"/>
     </Style>
     
-    <Style Selector="DataGridCell">
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-        <Setter Property="FontSize" Value="13"/>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
+    </Style>
+    
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource HoverBackgroundBrush}"/>
     </Style>
     
     <!-- TextBox Styling -->
     <Style Selector="TextBox">
-        <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+        <Setter Property="Background" Value="#0e0c08"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="Padding" Value="6,4"/>
         <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="FontSize" Value="12"/>
     </Style>
     
     <Style Selector="TextBox:focus">
@@ -135,46 +136,65 @@
     
     <!-- ComboBox Styling -->
     <Style Selector="ComboBox">
-        <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+        <Setter Property="Background" Value="#0e0c08"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="Padding" Value="6,4"/>
         <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="FontSize" Value="12"/>
     </Style>
     
     <Style Selector="ComboBox:focus">
         <Setter Property="BorderBrush" Value="{StaticResource AccentPrimaryBrush}"/>
     </Style>
     
-    <!-- Button Styling -->
+    <!-- Button Styling — Dark stone base -->
     <Style Selector="Button">
-        <Setter Property="Background" Value="{StaticResource BackgroundLightBrush}"/>
+        <Setter Property="Background" Value="#1a1610"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Padding" Value="10,5"/>
         <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="FontSize" Value="12"/>
     </Style>
     
     <Style Selector="Button:pointerover">
-        <Setter Property="Background" Value="{StaticResource BackgroundPanelBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderMediumBrush}"/>
+        <Setter Property="Background" Value="#241e14"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderGoldBrush}"/>
     </Style>
     
     <Style Selector="Button:pressed">
-        <Setter Property="Background" Value="{StaticResource AccentPrimaryBrush}"/>
+        <Setter Property="Background" Value="#0e0c08"/>
     </Style>
     
-    <!-- Primary Button Style (for important actions) -->
+    <!-- Primary Button Style — Gold accent -->
     <Style Selector="Button.Primary">
-        <Setter Property="Background" Value="{StaticResource AccentPrimaryBrush}"/>
-        <Setter Property="Foreground" Value="#FFFFFF"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="#2a2418"/>
+        <Setter Property="Foreground" Value="{StaticResource TextGoldBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderGoldBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
     
     <Style Selector="Button.Primary:pointerover">
-        <Setter Property="Background" Value="#1C97EA"/>
+        <Setter Property="Background" Value="#3a3020"/>
+        <Setter Property="Foreground" Value="#e8d48a"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AccentPrimaryBrush}"/>
+    </Style>
+    
+    <!-- Danger Button Style — Red accent -->
+    <Style Selector="Button.Danger">
+        <Setter Property="Background" Value="#1a1210"/>
+        <Setter Property="Foreground" Value="#e57373"/>
+        <Setter Property="BorderBrush" Value="#3c2020"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    
+    <Style Selector="Button.Danger:pointerover">
+        <Setter Property="Background" Value="#2a1818"/>
+        <Setter Property="BorderBrush" Value="#5c3030"/>
     </Style>
     
     <!-- CheckBox Styling -->
@@ -187,24 +207,30 @@
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
     </Style>
     
-    <!-- Section Header Style -->
+    <!-- Section Header Style — Gold accent -->
     <Style Selector="TextBlock.SectionHeader">
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-        <Setter Property="Margin" Value="0,12,0,8"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextGoldBrush}"/>
+        <Setter Property="Margin" Value="0,10,0,6"/>
     </Style>
     
     <Style Selector="TextBlock.PanelTitle">
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="FontSize" Value="16"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-        <Setter Property="Margin" Value="0,0,0,16"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{StaticResource TextGoldBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
     </Style>
     
     <Style Selector="TextBlock.Label">
         <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="11"/>
+    </Style>
+    
+    <Style Selector="TextBlock.FieldLabel">
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Margin" Value="0,2"/>
     </Style>
     
     <!-- ScrollViewer -->
@@ -212,21 +238,47 @@
         <Setter Property="Background" Value="Transparent"/>
     </Style>
     
-    <!-- Editor Panel Style -->
+    <!-- Editor Panel Style — Dark stone with gold top accent -->
     <Style Selector="Border.EditorPanel">
         <Setter Property="Background" Value="{StaticResource BackgroundMediumBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="4"/>
-        <Setter Property="Padding" Value="16"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Padding" Value="12"/>
+    </Style>
+    
+    <!-- Section Card Style — Inner card for grouped properties -->
+    <Style Selector="Border.SectionCard">
+        <Setter Property="Background" Value="{StaticResource BackgroundCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+    
+    <!-- Gold top accent bar for editor panel -->
+    <Style Selector="Border.GoldAccent">
+        <Setter Property="Background" Value="{StaticResource AccentPrimaryBrush}"/>
+        <Setter Property="Height" Value="2"/>
+        <Setter Property="CornerRadius" Value="3,3,0,0"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
     </Style>
     
     <!-- GFX Preview Style -->
     <Style Selector="Border.GfxPreview">
-        <Setter Property="Background" Value="{StaticResource BackgroundDarkBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+        <Setter Property="Background" Value="#0a0a0e"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderGoldBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="CornerRadius" Value="3"/>
     </Style>
     
+    <!-- Toolbar Style -->
+    <Style Selector="Border.Toolbar">
+        <Setter Property="Background" Value="{StaticResource BackgroundMediumBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+
 </Styles>

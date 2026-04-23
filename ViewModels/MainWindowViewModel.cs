@@ -629,7 +629,10 @@ public partial class MainWindowViewModel : ViewModelBase
             int loaded = 0;
             
             // Load items from all .eif files (supports split pubs: dat001.eif, dat002.eif, etc.)
-            var eifFiles = Directory.GetFiles(PubDirectory, "*.eif").OrderBy(f => f).ToArray();
+            // Skip any git-lfs pointer stubs (files not yet pulled via 'git lfs pull')
+            var eifFiles = Directory.GetFiles(PubDirectory, "*.eif")
+                .Where(f => !Services.PubFileService.IsLfsPointer(f))
+                .OrderBy(f => f).ToArray();
             if (eifFiles.Length > 0)
             {
                 Console.WriteLine($"Found {eifFiles.Length} EIF files: {string.Join(", ", eifFiles.Select(Path.GetFileName))}");
@@ -669,7 +672,9 @@ public partial class MainWindowViewModel : ViewModelBase
             }
             
             // Load NPCs from all .enf files (supports split pubs)
-            var enfFiles = Directory.GetFiles(PubDirectory, "*.enf").OrderBy(f => f).ToArray();
+            var enfFiles = Directory.GetFiles(PubDirectory, "*.enf")
+                .Where(f => !Services.PubFileService.IsLfsPointer(f))
+                .OrderBy(f => f).ToArray();
             if (enfFiles.Length > 0)
             {
                 _npcsFileData = await _pubFileService.LoadNpcsAsync(enfFiles[0]);
@@ -698,7 +703,9 @@ public partial class MainWindowViewModel : ViewModelBase
             }
             
             // Load Spells from all .esf files (supports split pubs)
-            var esfFiles = Directory.GetFiles(PubDirectory, "*.esf").OrderBy(f => f).ToArray();
+            var esfFiles = Directory.GetFiles(PubDirectory, "*.esf")
+                .Where(f => !Services.PubFileService.IsLfsPointer(f))
+                .OrderBy(f => f).ToArray();
             if (esfFiles.Length > 0)
             {
                 _spellsFileData = await _pubFileService.LoadSpellsAsync(esfFiles[0]);
@@ -727,7 +734,9 @@ public partial class MainWindowViewModel : ViewModelBase
             }
             
             // Load Classes from all .ecf files (supports split pubs)
-            var ecfFiles = Directory.GetFiles(PubDirectory, "*.ecf").OrderBy(f => f).ToArray();
+            var ecfFiles = Directory.GetFiles(PubDirectory, "*.ecf")
+                .Where(f => !Services.PubFileService.IsLfsPointer(f))
+                .OrderBy(f => f).ToArray();
             if (ecfFiles.Length > 0)
             {
                 _classesFileData = await _pubFileService.LoadClassesAsync(ecfFiles[0]);

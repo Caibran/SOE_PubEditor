@@ -4,12 +4,12 @@
         xmlns:pub="using:Moffat.EndlessOnline.SDK.Protocol.Pub"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="650"
         x:Class="SOE_PubEditor.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/icon.png"
         Title="Shards of Eternity - Pub File Editor"
-        Width="1200" Height="800">
+        Width="750" Height="650">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -30,701 +30,789 @@
         </Menu>
 
         <!-- Status Bar -->
-        <Grid DockPanel.Dock="Bottom" Background="{StaticResource BackgroundLightBrush}" Height="24">
+        <Grid DockPanel.Dock="Bottom" Background="{StaticResource BackgroundMediumBrush}" Height="22">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0"/>
-            <TextBlock Grid.Column="1" Text="{Binding PubDirectory, StringFormat='Pub: {0}'}" VerticalAlignment="Center" Margin="8,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+            <TextBlock Grid.Column="0" Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0" FontSize="11"/>
+            <TextBlock Grid.Column="1" Text="{Binding PubDirectory, StringFormat='Pub: {0}'}" VerticalAlignment="Center" Margin="8,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
             <TextBlock Grid.Column="2" Text="{Binding SaveDirectory, StringFormat='Save: {0}'}" 
-                       VerticalAlignment="Center" Margin="8,0" Foreground="{StaticResource AccentSuccessBrush}"
+                       VerticalAlignment="Center" Margin="8,0" Foreground="{StaticResource AccentSuccessBrush}" FontSize="11"
                        IsVisible="{Binding SaveDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            <TextBlock Grid.Column="3" Text="{Binding GfxDirectory, StringFormat='GFX: {0}'}" VerticalAlignment="Center" Margin="8,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+            <TextBlock Grid.Column="3" Text="{Binding GfxDirectory, StringFormat='GFX: {0}'}" VerticalAlignment="Center" Margin="8,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
         </Grid>
 
         <!-- Main Content Tabs -->
         <TabControl SelectedIndex="{Binding SelectedTabIndex}">
             
+            <!-- ═══════════════════════════════════════════ -->
             <!-- Items Tab -->
+            <!-- ═══════════════════════════════════════════ -->
             <TabItem Header="Items">
-                <Grid ColumnDefinitions="*,420" RowDefinitions="Auto,*">
-                    <!-- Toolbar -->
-                    <Grid Grid.Row="0" Grid.Column="0" Margin="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Filter Controls -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding ItemTypeFilters}" SelectedItem="{Binding SelectedItemTypeFilter}" 
-                                      Width="120" Margin="0,0,4,0" PlaceholderText="All"/>
-                            <Button Content="✕" Click="OnClearItemTypeFilter" Padding="4,2" Margin="0,0,12,0"
+                <DockPanel>
+                    <!-- Toolbar — Full Width -->
+                    <Border DockPanel.Dock="Top" Classes="Toolbar">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+                            <ComboBox Grid.Column="0" ItemsSource="{Binding ItemTypeFilters}" SelectedItem="{Binding SelectedItemTypeFilter}" 
+                                      Width="110" PlaceholderText="All Types" Margin="0,0,4,0"/>
+                            <Button Grid.Column="1" Content="✕" Click="OnClearItemTypeFilter" Padding="4,3" Margin="0,0,8,0"
                                     ToolTip.Tip="Show all types" VerticalAlignment="Center"/>
-                            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <TextBox Text="{Binding ItemSearchText}" Width="150" Watermark="Filter by name..."/>
-                        </StackPanel>
-                        
-                        <!-- Action Buttons -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="+ Add" Command="{Binding AddItemCommand}" Classes="Primary" Margin="0,0,4,0"
+                            <TextBox Grid.Column="2" Text="{Binding ItemSearchText}" Width="140" Watermark="🔍 Search items..." Margin="0,0,4,0"/>
+                            <Panel Grid.Column="3"/>
+                            <Button Grid.Column="4" Content="+ Add" Command="{Binding AddItemCommand}" Classes="Primary" Margin="0,0,4,0"
                                     ToolTip.Tip="Add new item"/>
-                            <Button Content="Delete" Command="{Binding DeleteItemCommand}" 
+                            <Button Grid.Column="5" Content="Delete" Command="{Binding DeleteItemCommand}" Classes="Danger"
                                     IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"
                                     ToolTip.Tip="Delete selected item"/>
-                        </StackPanel>
-                    </Grid>
+                        </Grid>
+                    </Border>
                     
-                    <!-- Items DataGrid -->
-                    <DataGrid Grid.Row="1" Grid.Column="0"
-                              ItemsSource="{Binding FilteredItems}" 
-                              SelectedItem="{Binding SelectedItem}"
-                              AutoGenerateColumns="False"
-                              CanUserReorderColumns="True"
-                              CanUserResizeColumns="True"
-                              CanUserSortColumns="True"
-                              IsReadOnly="True"
-                              GridLinesVisibility="Horizontal"
-                              Margin="4">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Name" Binding="{ReflectionBinding Name}" Width="150"/>
-                            <DataGridTextColumn Header="GFX" Binding="{ReflectionBinding GraphicId}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Subtype" Binding="{ReflectionBinding Subtype}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Special" Binding="{ReflectionBinding Special}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Weight" Binding="{ReflectionBinding Weight}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Size" Binding="{ReflectionBinding Size}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="HP" Binding="{ReflectionBinding Hp}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="TP" Binding="{ReflectionBinding Tp}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="MinDmg" Binding="{ReflectionBinding MinDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="MaxDmg" Binding="{ReflectionBinding MaxDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Acc" Binding="{ReflectionBinding Accuracy}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Eva" Binding="{ReflectionBinding Evade}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Armor" Binding="{ReflectionBinding Armor}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="RetDmg" Binding="{ReflectionBinding ReturnDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="STR" Binding="{ReflectionBinding Str}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="INT" Binding="{ReflectionBinding Intl}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="WIS" Binding="{ReflectionBinding Wis}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="AGI" Binding="{ReflectionBinding Agi}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="CON" Binding="{ReflectionBinding Con}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="CHA" Binding="{ReflectionBinding Cha}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="LvlReq" Binding="{ReflectionBinding LevelRequirement}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="ClassReq" Binding="{ReflectionBinding ClassRequirement}" Width="SizeToHeader"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    
-                    <!-- Items Editor Panel -->
-                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Classes="EditorPanel" Margin="4">
-                        <ScrollViewer>
-                            <StackPanel IsVisible="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                <TextBlock Text="Item Editor" FontWeight="Bold" FontSize="16" Margin="0,0,0,12"/>
-                                
-                                <!-- GFX Previews Container -->
-                                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
-                                    <!-- Inventory Icon Preview (clickable to choose graphic) -->
-                                    <StackPanel>
-                                        <TextBlock Text="Inventory Icon" FontSize="11" Classes="Label" Margin="0,0,0,4"/>
-                                        <Button Click="OnItemPreviewClick" Padding="0" HorizontalAlignment="Left"
-                                                ToolTip.Tip="Click to choose inventory/ground icon">
-                                            <Button.ContextMenu>
-                                                <ContextMenu>
-                                                    <MenuItem Header="Export All Graphics..." Click="OnExportItemGraphics"/>
-                                                    <MenuItem Header="Import Graphics..." Click="OnImportItemGraphics"/>
-                                                </ContextMenu>
-                                            </Button.ContextMenu>
-                                            <Border Classes="GfxPreview" Height="80" Width="80">
-                                                <Image Source="{Binding ItemPreview}" Stretch="None"/>
-                                            </Border>
-                                        </Button>
+                    <!-- Content: List + Editor -->
+                    <Grid ColumnDefinitions="220,*">
+                        <!-- Items List -->
+                        <ListBox Grid.Column="0"
+                                 ItemsSource="{Binding FilteredItems}" 
+                                 SelectedItem="{Binding SelectedItem}"
+                                 Margin="6,6,3,6">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{ReflectionBinding Id, StringFormat='#{0}'}" 
+                                                   Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Width="32"/>
+                                        <TextBlock Text="{ReflectionBinding Name}" VerticalAlignment="Center" FontSize="12"/>
                                     </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        
+                        <!-- Items Editor Panel -->
+                        <Border Grid.Column="1" Classes="EditorPanel" Margin="3,6,6,6">
+                            <ScrollViewer>
+                                <StackPanel IsVisible="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <!-- Gold Accent Bar -->
+                                    <Border Classes="GoldAccent"/>
+                                    <TextBlock Text="Item Editor" Classes="PanelTitle"/>
                                     
-                                    <!-- Equipment Preview (only visible for visual equipment types: armor, weapon, hat, boots, shield, wings) -->
-                                    <StackPanel IsVisible="{Binding ShowEquipmentPreview}">
-                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,4">
-                                            <TextBlock Text="Equipment GFX" FontSize="11" Classes="Label"/>
-                                            <!-- Hide gender selector for weapons - they're imported to both male and female GFX files -->
-                                            <ComboBox SelectedIndex="{Binding SelectedItem.Spec2}" 
-                                                      IsVisible="{Binding ShowGenderSelector}"
-                                                      FontSize="11" Padding="4,2" MinWidth="70"
-                                                      ToolTip.Tip="Gender of this equipment - determines which GFX file to use">
-                                                <ComboBoxItem Content="Male"/>
-                                                <ComboBoxItem Content="Female"/>
-                                            </ComboBox>
+                                    <!-- GFX Previews -->
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="Inventory" FontSize="10" Classes="Label" Margin="0,0,0,3"/>
+                                            <Button Click="OnItemPreviewClick" Padding="0" HorizontalAlignment="Left"
+                                                    ToolTip.Tip="Click to choose inventory/ground icon">
+                                                <Button.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="Export All Graphics..." Click="OnExportItemGraphics"/>
+                                                        <MenuItem Header="Import Graphics..." Click="OnImportItemGraphics"/>
+                                                    </ContextMenu>
+                                                </Button.ContextMenu>
+                                                <Border Classes="GfxPreview" Height="64" Width="64">
+                                                    <Image Source="{Binding ItemPreview}" Stretch="None"/>
+                                                </Border>
+                                            </Button>
                                         </StackPanel>
-                                        <Button Click="OnEquipmentPreviewClick" Padding="0" HorizontalAlignment="Left"
-                                                ToolTip.Tip="Click to choose equipment/doll graphic">
-                                            <Border Classes="GfxPreview" Height="80" Width="80">
-                                                <Image Source="{Binding EquipmentPreview}" Stretch="None"/>
-                                            </Border>
-                                        </Button>
+                                        <StackPanel IsVisible="{Binding ShowEquipmentPreview}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,3">
+                                                <TextBlock Text="Equipment" FontSize="10" Classes="Label"/>
+                                                <ComboBox SelectedIndex="{Binding SelectedItem.Spec2}" 
+                                                          IsVisible="{Binding ShowGenderSelector}"
+                                                          FontSize="10" Padding="3,1" MinWidth="60"
+                                                          ToolTip.Tip="Gender">
+                                                    <ComboBoxItem Content="Male"/>
+                                                    <ComboBoxItem Content="Female"/>
+                                                </ComboBox>
+                                            </StackPanel>
+                                            <Button Click="OnEquipmentPreviewClick" Padding="0" HorizontalAlignment="Left"
+                                                    ToolTip.Tip="Click to choose equipment graphic">
+                                                <Border Classes="GfxPreview" Height="64" Width="64">
+                                                    <Image Source="{Binding EquipmentPreview}" Stretch="None"/>
+                                                </Border>
+                                            </Button>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                                
-                                <!-- Basic Properties -->
-                                <TextBlock Text="Basic Info" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding SelectedItem.Name}" Margin="0,2"/>
                                     
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Graphic:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Inventory/ground icon ID"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.GraphicId}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Equip GFX:" VerticalAlignment="Center" Margin="4,2,0,2" ToolTip.Tip="Equipment/doll graphic ID (armor, weapons, etc)"/>
-                                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.ItemTypes}" SelectedItem="{Binding SelectedItem.Type}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Subtype:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <ComboBox Grid.Row="2" Grid.Column="3" ItemsSource="{Binding $parent[Window].DataContext.ItemSubtypes}" SelectedItem="{Binding SelectedItem.Subtype}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Special:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.ItemSpecials}" SelectedItem="{Binding SelectedItem.Special}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Weight:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding SelectedItem.Weight}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Size:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.ItemSizes}" SelectedItem="{Binding SelectedItem.Size}" Margin="0,2"/>
-                                </Grid>
-                                
-                                <!-- Heal Stats (HP/TP restore - for Heal type only) -->
-                                <StackPanel IsVisible="{Binding ShowHealStats}">
-                                    <TextBlock Text="Heal Stats" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="HP Heal:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Amount of HP restored"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Hp}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="TP Heal:" VerticalAlignment="Center" Margin="4,2,0,2" ToolTip.Tip="Amount of TP restored"/>
-                                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.Tp}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Weapon Combat Stats (Min/Max Damage, Accuracy - for Weapon type only) -->
-                                <StackPanel IsVisible="{Binding ShowWeaponStats}">
-                                    <TextBlock Text="Weapon Stats" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Min Dmg:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.MinDamage}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Max Dmg:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.MaxDamage}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Accuracy:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.Accuracy}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="HP Bonus:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="HP bonus when equipped"/>
-                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.Hp}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="2" Text="TP Bonus:" VerticalAlignment="Center" Margin="4,2,0,2" ToolTip.Tip="TP bonus when equipped"/>
-                                        <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedItem.Tp}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Defense Combat Stats (Armor, Evade, ReturnDamage - for defensive equipment) -->
-                                <StackPanel IsVisible="{Binding ShowDefenseStats}">
-                                    <TextBlock Text="Defense Stats" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Armor:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Armor}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Evade:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.Evade}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Ret Dmg:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Damage returned to attacker"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.ReturnDamage}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="HP Bonus:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="HP bonus when equipped"/>
-                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.Hp}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="2" Text="TP Bonus:" VerticalAlignment="Center" Margin="4,2,0,2" ToolTip.Tip="TP bonus when equipped"/>
-                                        <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedItem.Tp}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Teleport Fields (for Scroll/Teleport type) -->
-                                <StackPanel IsVisible="{Binding ShowTeleportFields}">
-                                    <TextBlock Text="Teleport Destination" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*,60,*,60,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Map ID:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Destination map ID"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="X:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.Spec2}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Y:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding SelectedItem.Spec3}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Spell Field (for Skill Book type) -->
-                                <StackPanel IsVisible="{Binding ShowSpellField}">
-                                    <TextBlock Text="Teaches Spell" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Spell ID:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="ID of the spell this book teaches"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- EXP Reward Field -->
-                                <StackPanel IsVisible="{Binding ShowExpRewardField}">
-                                    <TextBlock Text="Experience Reward" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="EXP:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Amount of experience given"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Key Field -->
-                                <StackPanel IsVisible="{Binding ShowKeyField}">
-                                    <TextBlock Text="Key Properties" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Key ID:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Unique key identifier for door matching"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Effect Field (Beer/EffectPotion) -->
-                                <StackPanel IsVisible="{Binding ShowEffectField}">
-                                    <TextBlock Text="Effect Properties" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Effect:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Effect type/strength"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Hair Dye Field -->
-                                <StackPanel IsVisible="{Binding ShowHairDyeField}">
-                                    <TextBlock Text="Hair Dye Properties" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Hair Color:" VerticalAlignment="Center" Margin="0,2" ToolTip.Tip="Hair color ID"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Spec1}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Attributes (Equipment types only) -->
-                                <StackPanel IsVisible="{Binding ShowStatBonuses}">
-                                    <TextBlock Text="Stat Bonuses" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="60,*,60,*,60,*" RowDefinitions="Auto,Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="STR:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Str}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="INT:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.Intl}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="4" Text="WIS:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding SelectedItem.Wis}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="AGI:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.Agi}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="2" Text="CON:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedItem.Con}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="4" Text="CHA:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="1" Grid.Column="5" Text="{Binding SelectedItem.Cha}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                                
-                                <!-- Requirements (Equipment types only) -->
-                                <StackPanel IsVisible="{Binding ShowRequirements}">
-                                    <TextBlock Text="Requirements" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                    <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Level:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.LevelRequirement}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Class:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.ClassRequirement}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="STR Req:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.StrRequirement}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="2" Text="INT Req:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedItem.IntRequirement}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="WIS Req:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.WisRequirement}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="2" Text="AGI Req:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedItem.AgiRequirement}" Margin="0,2"/>
-                                        
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="CON Req:" VerticalAlignment="Center" Margin="0,2"/>
-                                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SelectedItem.ConRequirement}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="2" Text="CHA Req:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                        <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding SelectedItem.ChaRequirement}" Margin="0,2"/>
-                                    </Grid>
-                                </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
-            </TabItem>
-            
-            <!-- NPCs Tab -->
-            <TabItem Header="NPCs">
-                <Grid ColumnDefinitions="*,420" RowDefinitions="Auto,*">
-                    <!-- Toolbar -->
-                    <Grid Grid.Row="0" Grid.Column="0" Margin="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Filter Controls -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding NpcTypeFilters}" SelectedItem="{Binding SelectedNpcTypeFilter}" 
-                                      Width="120" Margin="0,0,4,0" PlaceholderText="All"/>
-                            <Button Content="✕" Click="OnClearNpcTypeFilter" Padding="4,2" Margin="0,0,12,0"
-                                    ToolTip.Tip="Show all types" VerticalAlignment="Center"/>
-                            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <TextBox Text="{Binding NpcSearchText}" Width="150" Watermark="Filter by name..."/>
-                        </StackPanel>
-                        
-                        <!-- Action Buttons -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="+ Add" Command="{Binding AddNpcCommand}" Classes="Primary" Margin="0,0,4,0"
-                                    ToolTip.Tip="Add new NPC"/>
-                            <Button Content="Delete" Command="{Binding DeleteNpcCommand}" 
-                                    IsEnabled="{Binding SelectedNpc, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                    ToolTip.Tip="Delete selected NPC"/>
-                        </StackPanel>
-                    </Grid>
-                    
-                    <!-- NPCs DataGrid -->
-                    <DataGrid Grid.Row="1" Grid.Column="0"
-                              ItemsSource="{Binding FilteredNpcs}" 
-                              SelectedItem="{Binding SelectedNpc}"
-                              AutoGenerateColumns="False"
-                              CanUserReorderColumns="True"
-                              CanUserResizeColumns="True"
-                              CanUserSortColumns="True"
-                              IsReadOnly="True"
-                              GridLinesVisibility="Horizontal"
-                              Margin="4">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Name" Binding="{ReflectionBinding Name}" Width="150"/>
-                            <DataGridTextColumn Header="GFX" Binding="{ReflectionBinding GraphicId}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="HP" Binding="{ReflectionBinding Hp}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="TP" Binding="{ReflectionBinding Tp}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="MinDmg" Binding="{ReflectionBinding MinDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="MaxDmg" Binding="{ReflectionBinding MaxDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Acc" Binding="{ReflectionBinding Accuracy}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Eva" Binding="{ReflectionBinding Evade}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Armor" Binding="{ReflectionBinding Armor}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Exp" Binding="{ReflectionBinding Experience}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Boss" Binding="{ReflectionBinding Boss}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Child" Binding="{ReflectionBinding Child}" Width="SizeToHeader"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    
-                    <!-- NPCs Editor Panel -->
-                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Classes="EditorPanel" Margin="4">
-                        <ScrollViewer>
-                            <StackPanel IsVisible="{Binding SelectedNpc, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                <TextBlock Text="NPC Editor" FontWeight="Bold" FontSize="16" Margin="0,0,0,12"/>
-                                
-                                <!-- GFX Preview (clickable to choose graphic) -->
-                                <Button Click="OnNpcPreviewClick" Padding="0" HorizontalAlignment="Left" Margin="0,0,0,12"
-                                        ToolTip.Tip="Click to choose a different graphic">
-                                    <Button.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="Export All Graphics..." Click="OnExportNpcGraphics"/>
-                                            <MenuItem Header="Import Graphics..." Click="OnImportNpcGraphics"/>
-                                        </ContextMenu>
-                                    </Button.ContextMenu>
-                                    <Border Classes="GfxPreview" Height="80" Width="80">
-                                        <Image Source="{Binding NpcPreview}" Stretch="None"/>
+                                    <!-- Basic Info Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="BASIC INFO" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Name" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedItem.Name}" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Graphic ID" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.GraphicId}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Equip GFX" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Type" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.ItemTypes}" SelectedItem="{Binding SelectedItem.Type}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Subtype" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.ItemSubtypes}" SelectedItem="{Binding SelectedItem.Subtype}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Special" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.ItemSpecials}" SelectedItem="{Binding SelectedItem.Special}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Weight" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Weight}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="Size" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.ItemSizes}" SelectedItem="{Binding SelectedItem.Size}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
                                     </Border>
-                                </Button>
-                                
-                                <!-- Basic Properties -->
-                                <TextBlock Text="Basic Info" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding SelectedNpc.Name}" Margin="0,2"/>
                                     
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Graphic:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNpc.GraphicId}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Race:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedNpc.Race}" Margin="0,2"/>
+                                    <!-- Heal Stats Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowHealStats}">
+                                        <StackPanel>
+                                            <TextBlock Text="HEAL STATS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="HP Heal" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Hp}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="TP Heal" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Tp}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
                                     
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.NpcTypes}" SelectedItem="{Binding SelectedNpc.Type}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Behavior:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedNpc.BehaviorId}" Margin="0,2"/>
-                                </Grid>
-                                
-                                <!-- Combat Stats -->
-                                <TextBlock Text="Combat Stats" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="HP:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedNpc.Hp}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="TP:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedNpc.Tp}" Margin="0,2"/>
+                                    <!-- Weapon Stats Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowWeaponStats}">
+                                        <StackPanel>
+                                            <TextBlock Text="WEAPON STATS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Min Damage" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.MinDamage}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Max Damage" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.MaxDamage}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Accuracy" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Accuracy}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="HP Bonus" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Hp}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="TP Bonus" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Tp}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
                                     
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Dmg:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNpc.MinDamage}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Max Dmg:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedNpc.MaxDamage}" Margin="0,2"/>
+                                    <!-- Defense Stats Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowDefenseStats}">
+                                        <StackPanel>
+                                            <TextBlock Text="DEFENSE STATS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Armor" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Armor}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Evade" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Evade}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Return Dmg" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.ReturnDamage}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="HP Bonus" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Hp}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="TP Bonus" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Tp}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
                                     
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Accuracy:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedNpc.Accuracy}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Evade:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedNpc.Evade}" Margin="0,2"/>
+                                    <!-- Teleport Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowTeleportFields}">
+                                        <StackPanel>
+                                            <TextBlock Text="TELEPORT" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Map ID" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="X" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Spec2}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="Y" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Spec3}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
                                     
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Armor:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SelectedNpc.Armor}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Ret Dmg:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding SelectedNpc.ReturnDamage}" Margin="0,2"/>
+                                    <!-- Spell Book Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowSpellField}">
+                                        <StackPanel>
+                                            <TextBlock Text="TEACHES SPELL" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Spell ID" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                        </StackPanel>
+                                    </Border>
                                     
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="EXP:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding SelectedNpc.Experience}" Margin="0,2"/>
-                                </Grid>
-                                
-                                <!-- Flags -->
-                                <TextBlock Text="Flags" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <CheckBox Content="Boss" IsChecked="{Binding SelectedNpc.Boss}" Margin="0,0,16,0"/>
-                                    <CheckBox Content="Child" IsChecked="{Binding SelectedNpc.Child}"/>
+                                    <!-- EXP Reward Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowExpRewardField}">
+                                        <StackPanel>
+                                            <TextBlock Text="EXPERIENCE REWARD" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="EXP Amount" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Key Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowKeyField}">
+                                        <StackPanel>
+                                            <TextBlock Text="KEY PROPERTIES" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Key ID" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Effect Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowEffectField}">
+                                        <StackPanel>
+                                            <TextBlock Text="EFFECT" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Effect" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Hair Dye Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowHairDyeField}">
+                                        <StackPanel>
+                                            <TextBlock Text="HAIR DYE" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Hair Color" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedItem.Spec1}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Stat Bonuses Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowStatBonuses}">
+                                        <StackPanel>
+                                            <TextBlock Text="STAT BONUSES" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="STR" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Str}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="INT" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Intl}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="WIS" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Wis}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="AGI" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Agi}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="CON" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Con}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="CHA" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.Cha}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Requirements Card -->
+                                    <Border Classes="SectionCard" IsVisible="{Binding ShowRequirements}">
+                                        <StackPanel>
+                                            <TextBlock Text="REQUIREMENTS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Level" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.LevelRequirement}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Class" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.ClassRequirement}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="STR Req" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.StrRequirement}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="INT Req" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.IntRequirement}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="WIS Req" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.WisRequirement}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="AGI Req" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.AgiRequirement}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="CON Req" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.ConRequirement}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="CHA Req" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedItem.ChaRequirement}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
-                                
-                                <!-- Weaknesses -->
-                                <TextBlock Text="Weaknesses" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Elem Weak:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.Elements}" SelectedItem="{Binding SelectedNpc.ElementWeakness}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Dmg:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedNpc.ElementWeaknessDamage}" Margin="0,2"/>
-                                </Grid>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </DockPanel>
             </TabItem>
             
-            <!-- Spells Tab -->
-            <TabItem Header="Spells">
-                <Grid ColumnDefinitions="*,420" RowDefinitions="Auto,*">
-                    <!-- Toolbar -->
-                    <Grid Grid.Row="0" Grid.Column="0" Margin="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Filter Controls -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <ComboBox ItemsSource="{Binding SpellTypeFilters}" SelectedItem="{Binding SelectedSpellTypeFilter}" 
-                                      Width="120" Margin="0,0,4,0" PlaceholderText="All"/>
-                            <Button Content="✕" Click="OnClearSpellTypeFilter" Padding="4,2" Margin="0,0,12,0"
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- NPCs Tab -->
+            <!-- ═══════════════════════════════════════════ -->
+            <TabItem Header="NPCs">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Classes="Toolbar">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+                            <ComboBox Grid.Column="0" ItemsSource="{Binding NpcTypeFilters}" SelectedItem="{Binding SelectedNpcTypeFilter}" 
+                                      Width="110" PlaceholderText="All Types" Margin="0,0,4,0"/>
+                            <Button Grid.Column="1" Content="✕" Click="OnClearNpcTypeFilter" Padding="4,3" Margin="0,0,8,0"
                                     ToolTip.Tip="Show all types" VerticalAlignment="Center"/>
-                            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <TextBox Text="{Binding SpellSearchText}" Width="150" Watermark="Filter by name..."/>
-                        </StackPanel>
+                            <TextBox Grid.Column="2" Text="{Binding NpcSearchText}" Width="140" Watermark="🔍 Search NPCs..." Margin="0,0,4,0"/>
+                            <Panel Grid.Column="3"/>
+                            <Button Grid.Column="4" Content="+ Add" Command="{Binding AddNpcCommand}" Classes="Primary" Margin="0,0,4,0"/>
+                            <Button Grid.Column="5" Content="Delete" Command="{Binding DeleteNpcCommand}" Classes="Danger"
+                                    IsEnabled="{Binding SelectedNpc, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Grid ColumnDefinitions="220,*">
+                        <ListBox Grid.Column="0" ItemsSource="{Binding FilteredNpcs}" SelectedItem="{Binding SelectedNpc}" Margin="6,6,3,6">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{ReflectionBinding Id, StringFormat='#{0}'}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Width="32"/>
+                                        <TextBlock Text="{ReflectionBinding Name}" VerticalAlignment="Center" FontSize="12"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                         
-                        <!-- Action Buttons -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="+ Add" Command="{Binding AddSpellCommand}" Classes="Primary" Margin="0,0,4,0"
-                                    ToolTip.Tip="Add new spell"/>
-                            <Button Content="Delete" Command="{Binding DeleteSpellCommand}" 
-                                    IsEnabled="{Binding SelectedSpell, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                    ToolTip.Tip="Delete selected spell"/>
-                        </StackPanel>
-                    </Grid>
-                    
-                    <!-- Spells DataGrid -->
-                    <DataGrid Grid.Row="1" Grid.Column="0"
-                              ItemsSource="{Binding FilteredSpells}" 
-                              SelectedItem="{Binding SelectedSpell}"
-                              AutoGenerateColumns="False"
-                              CanUserReorderColumns="True"
-                              CanUserResizeColumns="True"
-                              CanUserSortColumns="True"
-                              IsReadOnly="True"
-                              GridLinesVisibility="Horizontal"
-                              Margin="4">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Name" Binding="{ReflectionBinding Name}" Width="150"/>
-                            <DataGridTextColumn Header="GFX" Binding="{ReflectionBinding GraphicId}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Target" Binding="{ReflectionBinding TargetType}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="TP" Binding="{ReflectionBinding TpCost}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="SP" Binding="{ReflectionBinding SpCost}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="HP Heal" Binding="{ReflectionBinding HpHeal}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="TP Heal" Binding="{ReflectionBinding TpHeal}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="MinDmg" Binding="{ReflectionBinding MinDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="MaxDmg" Binding="{ReflectionBinding MaxDamage}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Acc" Binding="{ReflectionBinding Accuracy}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="CastTime" Binding="{ReflectionBinding CastTime}" Width="SizeToHeader"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    
-                    <!-- Spells Editor Panel -->
-                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Classes="EditorPanel" Margin="4">
-                        <ScrollViewer>
-                            <StackPanel IsVisible="{Binding SelectedSpell, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                <TextBlock Text="Spell Editor" FontWeight="Bold" FontSize="16" Margin="0,0,0,12"/>
-                                
-                                <!-- GFX Preview (clickable to choose graphic) and Icon Preview (clickable to choose icon) -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                    <StackPanel Margin="0,0,16,0">
-                                        <TextBlock Text="Spell Graphic" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                        <Button Click="OnSpellPreviewClick" Padding="0" HorizontalAlignment="Left"
-                                                ToolTip.Tip="Click to choose a different spell graphic (gfx024)">
+                        <Border Grid.Column="1" Classes="EditorPanel" Margin="3,6,6,6">
+                            <ScrollViewer>
+                                <StackPanel IsVisible="{Binding SelectedNpc, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <Border Classes="GoldAccent"/>
+                                    <TextBlock Text="NPC Editor" Classes="PanelTitle"/>
+                                    
+                                    <!-- GFX Preview -->
+                                    <StackPanel Margin="0,0,0,8">
+                                        <TextBlock Text="Graphic" FontSize="10" Classes="Label" Margin="0,0,0,3"/>
+                                        <Button Click="OnNpcPreviewClick" Padding="0" HorizontalAlignment="Left"
+                                                ToolTip.Tip="Click to choose a different graphic">
                                             <Button.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="Export All Graphics..." Click="OnExportSpellGraphics"/>
-                                                    <MenuItem Header="Import Graphics..." Click="OnImportSpellGraphics"/>
+                                                    <MenuItem Header="Export All Graphics..." Click="OnExportNpcGraphics"/>
+                                                    <MenuItem Header="Import Graphics..." Click="OnImportNpcGraphics"/>
                                                 </ContextMenu>
                                             </Button.ContextMenu>
-                                            <Border Classes="GfxPreview" Height="80" Width="80">
-                                                <Image Source="{Binding SpellPreview}" Stretch="None"/>
+                                            <Border Classes="GfxPreview" Height="64" Width="64">
+                                                <Image Source="{Binding NpcPreview}" Stretch="None"/>
                                             </Border>
                                         </Button>
                                     </StackPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="Spell Icon" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                        <Button Click="OnSpellIconPreviewClick" Padding="0" HorizontalAlignment="Left"
-                                                ToolTip.Tip="Click to choose a different spell icon (gfx025)">
-                                            <Border Classes="GfxPreview" Height="80" Width="80">
-                                                <Image Source="{Binding SpellIconPreview}" Stretch="None"/>
-                                            </Border>
-                                        </Button>
-                                    </StackPanel>
+                                    
+                                    <!-- Basic Info Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="BASIC INFO" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Name" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedNpc.Name}" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Graphic ID" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.GraphicId}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Race" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.Race}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Type" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.NpcTypes}" SelectedItem="{Binding SelectedNpc.Type}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Behavior" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.BehaviorId}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Combat Stats Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="COMBAT STATS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="HP" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.Hp}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="TP" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.Tp}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Min Damage" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.MinDamage}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Max Damage" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.MaxDamage}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Accuracy" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.Accuracy}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Evade" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.Evade}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Armor" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.Armor}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Return Dmg" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.ReturnDamage}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <TextBlock Text="Experience" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedNpc.Experience}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Flags Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="FLAGS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                                <CheckBox Content="Boss" IsChecked="{Binding SelectedNpc.Boss}"/>
+                                                <CheckBox Content="Child" IsChecked="{Binding SelectedNpc.Child}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Weaknesses Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="WEAKNESSES" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Element" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.Elements}" SelectedItem="{Binding SelectedNpc.ElementWeakness}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Bonus Dmg" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedNpc.ElementWeaknessDamage}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
-                                
-                                <!-- Basic Properties -->
-                                <TextBlock Text="Basic Info" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding SelectedSpell.Name}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Chant:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding SelectedSpell.Chant}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Icon:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedSpell.IconId}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Graphic:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedSpell.GraphicId}" Margin="0,2"/>
-                                </Grid>
-                                
-                                <!-- Costs & Timing -->
-                                <TextBlock Text="Costs &amp; Timing" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="TP Cost:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedSpell.TpCost}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="SP Cost:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedSpell.SpCost}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Cast Time:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedSpell.CastTime}" Margin="0,2"/>
-                                </Grid>
-                                
-                                <!-- Effects -->
-                                <TextBlock Text="Effects" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Type:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.SkillTypes}" SelectedItem="{Binding SelectedSpell.Type}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Dmg:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedSpell.MinDamage}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Max Dmg:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedSpell.MaxDamage}" Margin="0,2"/>
-                                    
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="HP Heal:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedSpell.HpHeal}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Accuracy:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding SelectedSpell.Accuracy}" Margin="0,2"/>
-                                </Grid>
-                                
-                                <!-- Targeting -->
-                                <TextBlock Text="Targeting" FontWeight="SemiBold" Margin="0,4,0,4"/>
-                                <Grid ColumnDefinitions="90,*,90,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Target:" VerticalAlignment="Center" Margin="0,2"/>
-                                    <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding $parent[Window].DataContext.SkillTargetTypes}" SelectedItem="{Binding SelectedSpell.TargetType}" Margin="0,2"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Restrict:" VerticalAlignment="Center" Margin="4,2,0,2"/>
-                                    <ComboBox Grid.Row="0" Grid.Column="3" ItemsSource="{Binding $parent[Window].DataContext.SkillTargetRestricts}" SelectedItem="{Binding SelectedSpell.TargetRestrict}" Margin="0,2"/>
-                                </Grid>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </DockPanel>
             </TabItem>
             
-            <!-- Classes Tab -->
-            <TabItem Header="Classes">
-                <Grid ColumnDefinitions="*,420" RowDefinitions="Auto,*">
-                    <!-- Toolbar -->
-                    <Grid Grid.Row="0" Grid.Column="0" Margin="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Filter Controls -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <TextBox Text="{Binding ClassSearchText}" Width="150" Watermark="Filter by name..."/>
-                        </StackPanel>
-                        
-                        <!-- Action Buttons -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="+ Add" Command="{Binding AddClassCommand}" Classes="Primary" Margin="0,0,4,0"
-                                    ToolTip.Tip="Add new class"/>
-                            <Button Content="Delete" Command="{Binding DeleteClassCommand}" 
-                                    IsEnabled="{Binding SelectedClass, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                    ToolTip.Tip="Delete selected class"/>
-                        </StackPanel>
-                    </Grid>
-                    
-                    <!-- Classes DataGrid -->
-                    <DataGrid Grid.Row="1" Grid.Column="0"
-                              ItemsSource="{Binding FilteredClasses}" 
-                              SelectedItem="{Binding SelectedClass}"
-                              AutoGenerateColumns="False"
-                              CanUserReorderColumns="True"
-                              CanUserResizeColumns="True"
-                              CanUserSortColumns="True"
-                              IsReadOnly="True"
-                              GridLinesVisibility="Horizontal"
-                              Margin="4">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Name" Binding="{ReflectionBinding Name}" Width="150"/>
-                            <DataGridTextColumn Header="Parent" Binding="{ReflectionBinding ParentType}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="STR" Binding="{ReflectionBinding Str}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="INT" Binding="{ReflectionBinding Intl}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="WIS" Binding="{ReflectionBinding Wis}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="AGI" Binding="{ReflectionBinding Agi}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="CON" Binding="{ReflectionBinding Con}" Width="SizeToHeader"/>
-                            <DataGridTextColumn Header="CHA" Binding="{ReflectionBinding Cha}" Width="SizeToHeader"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    
-                    <!-- Classes Editor Panel -->
-                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Classes="EditorPanel" Margin="4">
-                        <ScrollViewer>
-                            <StackPanel IsVisible="{Binding SelectedClass, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                <TextBlock Text="Class Editor" FontWeight="Bold" FontSize="16" Margin="0,0,0,12"/>
-                                
-                                <!-- Basic Properties -->
-                                <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,0,0,12">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,4"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedClass.Name}" Margin="0,4"/>
-                                    
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Agi:" VerticalAlignment="Center" Margin="0,4"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedClass.Agi}" Margin="0,4"/>
-                                    
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Con:" VerticalAlignment="Center" Margin="0,4"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedClass.Con}" Margin="0,4"/>
-                                    
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Str:" VerticalAlignment="Center" Margin="0,4"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SelectedClass.Str}" Margin="0,4"/>
-                                    
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Int:" VerticalAlignment="Center" Margin="0,4"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding SelectedClass.Intl}" Margin="0,4"/>
-                                    
-                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Wis:" VerticalAlignment="Center" Margin="0,4"/>
-                                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding SelectedClass.Wis}" Margin="0,4"/>
-                                </Grid>
-                            </StackPanel>
-                        </ScrollViewer>
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- Spells Tab -->
+            <!-- ═══════════════════════════════════════════ -->
+            <TabItem Header="Spells">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Classes="Toolbar">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+                            <ComboBox Grid.Column="0" ItemsSource="{Binding SpellTypeFilters}" SelectedItem="{Binding SelectedSpellTypeFilter}" 
+                                      Width="110" PlaceholderText="All Types" Margin="0,0,4,0"/>
+                            <Button Grid.Column="1" Content="✕" Click="OnClearSpellTypeFilter" Padding="4,3" Margin="0,0,8,0"
+                                    ToolTip.Tip="Show all types" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="2" Text="{Binding SpellSearchText}" Width="140" Watermark="🔍 Search spells..." Margin="0,0,4,0"/>
+                            <Panel Grid.Column="3"/>
+                            <Button Grid.Column="4" Content="+ Add" Command="{Binding AddSpellCommand}" Classes="Primary" Margin="0,0,4,0"/>
+                            <Button Grid.Column="5" Content="Delete" Command="{Binding DeleteSpellCommand}" Classes="Danger"
+                                    IsEnabled="{Binding SelectedSpell, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        </Grid>
                     </Border>
-                </Grid>
+                    
+                    <Grid ColumnDefinitions="220,*">
+                        <ListBox Grid.Column="0" ItemsSource="{Binding FilteredSpells}" SelectedItem="{Binding SelectedSpell}" Margin="6,6,3,6">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{ReflectionBinding Id, StringFormat='#{0}'}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Width="32"/>
+                                        <TextBlock Text="{ReflectionBinding Name}" VerticalAlignment="Center" FontSize="12"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        
+                        <Border Grid.Column="1" Classes="EditorPanel" Margin="3,6,6,6">
+                            <ScrollViewer>
+                                <StackPanel IsVisible="{Binding SelectedSpell, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <Border Classes="GoldAccent"/>
+                                    <TextBlock Text="Spell Editor" Classes="PanelTitle"/>
+                                    
+                                    <!-- GFX Previews -->
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="Spell GFX" FontSize="10" Classes="Label" Margin="0,0,0,3"/>
+                                            <Button Click="OnSpellPreviewClick" Padding="0" HorizontalAlignment="Left"
+                                                    ToolTip.Tip="Click to choose spell graphic (gfx024)">
+                                                <Button.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="Export All Graphics..." Click="OnExportSpellGraphics"/>
+                                                        <MenuItem Header="Import Graphics..." Click="OnImportSpellGraphics"/>
+                                                    </ContextMenu>
+                                                </Button.ContextMenu>
+                                                <Border Classes="GfxPreview" Height="64" Width="64">
+                                                    <Image Source="{Binding SpellPreview}" Stretch="None"/>
+                                                </Border>
+                                            </Button>
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Spell Icon" FontSize="10" Classes="Label" Margin="0,0,0,3"/>
+                                            <Button Click="OnSpellIconPreviewClick" Padding="0" HorizontalAlignment="Left"
+                                                    ToolTip.Tip="Click to choose spell icon (gfx025)">
+                                                <Border Classes="GfxPreview" Height="64" Width="64">
+                                                    <Image Source="{Binding SpellIconPreview}" Stretch="None"/>
+                                                </Border>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <!-- Basic Info Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="BASIC INFO" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Name" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedSpell.Name}" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Chant" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedSpell.Chant}" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Icon ID" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.IconId}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Graphic ID" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.GraphicId}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Costs & Timing Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="COSTS &amp; TIMING" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="TP Cost" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.TpCost}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="SP Cost" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.SpCost}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="Cast Time" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.CastTime}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Effects Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="EFFECTS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Type" Classes="FieldLabel"/>
+                                            <ComboBox ItemsSource="{Binding $parent[Window].DataContext.SkillTypes}" SelectedItem="{Binding SelectedSpell.Type}" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>
+                                            <Grid ColumnDefinitions="*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Min Damage" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.MinDamage}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Max Damage" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.MaxDamage}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="HP Heal" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.HpHeal}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Accuracy" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedSpell.Accuracy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Targeting Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="TARGETING" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Target" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.SkillTargetTypes}" SelectedItem="{Binding SelectedSpell.TargetType}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Restrict" Classes="FieldLabel"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[Window].DataContext.SkillTargetRestricts}" SelectedItem="{Binding SelectedSpell.TargetRestrict}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </DockPanel>
+            </TabItem>
+            
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- Classes Tab -->
+            <!-- ═══════════════════════════════════════════ -->
+            <TabItem Header="Classes">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Classes="Toolbar">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                            <TextBox Grid.Column="0" Text="{Binding ClassSearchText}" Width="140" Watermark="🔍 Search classes..." Margin="0,0,4,0"/>
+                            <Panel Grid.Column="1"/>
+                            <Button Grid.Column="2" Content="+ Add" Command="{Binding AddClassCommand}" Classes="Primary" Margin="0,0,4,0"/>
+                            <Button Grid.Column="3" Content="Delete" Command="{Binding DeleteClassCommand}" Classes="Danger"
+                                    IsEnabled="{Binding SelectedClass, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Grid ColumnDefinitions="220,*">
+                        <ListBox Grid.Column="0" ItemsSource="{Binding FilteredClasses}" SelectedItem="{Binding SelectedClass}" Margin="6,6,3,6">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{ReflectionBinding Id, StringFormat='#{0}'}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Width="32"/>
+                                        <TextBlock Text="{ReflectionBinding Name}" VerticalAlignment="Center" FontSize="12"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        
+                        <Border Grid.Column="1" Classes="EditorPanel" Margin="3,6,6,6">
+                            <ScrollViewer>
+                                <StackPanel IsVisible="{Binding SelectedClass, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <Border Classes="GoldAccent"/>
+                                    <TextBlock Text="Class Editor" Classes="PanelTitle"/>
+                                    
+                                    <!-- Basic Info Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="BASIC INFO" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Name" Classes="FieldLabel"/>
+                                            <TextBox Text="{Binding SelectedClass.Name}" Margin="0,0,0,6"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Base Stats Card -->
+                                    <Border Classes="SectionCard">
+                                        <StackPanel>
+                                            <TextBlock Text="BASE STATS" Classes="SectionHeader" Margin="0,0,0,6"/>
+                                            <Grid ColumnDefinitions="*,8,*,8,*" Margin="0,0,0,4">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="STR" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedClass.Str}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="INT" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedClass.Intl}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="WIS" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedClass.Wis}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,8,*,8,*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="AGI" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedClass.Agi}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="CON" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedClass.Con}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="CHA" Classes="FieldLabel"/>
+                                                    <TextBox Text="{Binding SelectedClass.Cha}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </DockPanel>
             </TabItem>
         </TabControl>
     </DockPanel>

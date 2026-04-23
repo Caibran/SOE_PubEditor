@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SOE_PubEditor.Views.ReplaceGraphicDialog"
+        Title="Replace Graphics"
+        Width="550" MinWidth="450"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+    
+    <Window.Styles>
+        <Style Selector="TextBlock.section-header">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#c6a856"/>
+            <Setter Property="Margin" Value="0,12,0,6"/>
+        </Style>
+        <Style Selector="Border.frame-row">
+            <Setter Property="Background" Value="#12100c"/>
+            <Setter Property="BorderBrush" Value="#252530"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+        <Style Selector="Button.load-btn">
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBlock.file-path">
+            <Setter Property="Foreground" Value="#2a9d8f"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="MaxWidth" Value="200"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBlock.frame-label">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="160"/>
+        </Style>
+    </Window.Styles>
+    
+    <Border Padding="20">
+        <DockPanel>
+            <!-- Header -->
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                <TextBlock x:Name="DialogTitle" Text="Replace Graphics" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock x:Name="DialogSubtitle" Foreground="#888" Margin="0,4,0,0"
+                           Text="Select BMP files to replace individual graphic frames."/>
+            </StackPanel>
+            
+            <!-- Buttons -->
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" 
+                        HorizontalAlignment="Right" Margin="0,16,0,0" Spacing="8">
+                <Button Content="Cancel" Width="80" Click="OnCancel"/>
+                <Button x:Name="ReplaceButton" Content="Replace" Width="80" 
+                        Classes="accent" Click="OnReplace" IsEnabled="False"/>
+            </StackPanel>
+            
+            <!-- Scrollable frame list -->
+            <ScrollViewer MaxHeight="500" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="FrameListPanel" Spacing="2"/>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</Window>
